@@ -4,7 +4,6 @@ import { AccountOpenDTO } from "src/dtos/account_open.dto";
 
 @Controller('accounts')
 export class AccountController {
-    
     constructor (private readonly accountService: AccountService) {}
     
     @Post()

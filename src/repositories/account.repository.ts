@@ -6,6 +6,7 @@ import prisma from '../database/connection';
 interface AccountRepo {
     create(data: AccountCreateDTO): Promise<Account>;
     findByNumber(number: string): Promise<Account|null>;
+    findByUser(user_id: number): Promise<Account[]>;
 }
 
 export class AccountRepository implements AccountRepo {
@@ -30,6 +31,20 @@ export class AccountRepository implements AccountRepo {
             });
             if (!account) return null;
             return this.normalizeAccount(account);
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async findByUser(user_id: number): Promise<Account[]> {
+        try {
+            const accounts = await prisma.account.findMany({
+                where: {
+                    user_id: user_id
+                }
+            });
+            return accounts.map(account => this.normalizeAccount(account));
         }
         catch (err) {
             throw new Error(err);

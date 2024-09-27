@@ -1,5 +1,5 @@
+import { User, UserWithCredentials } from "../entities/user.entity";
 import { UserCreateDTO } from "../dtos/user_create.dto";
-import { User } from "../entities/user.entity";
 import prisma from '../database/connection';
 import { Injectable } from "@nestjs/common";
 
@@ -28,6 +28,22 @@ export class UserRepository implements UserRepo {
         try {
             const users = await prisma.user.findMany();
             return users.map(user => this.normalizeUser(user));
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async findByCPF(cpf: string): Promise<UserWithCredentials> {
+        try {
+            const user = await prisma.user.findFirst({
+                where: {
+                    cpf: cpf
+                }
+            });
+            return user 
+                ? {...this.normalizeUser(user), password: user.password} 
+                : null;
         }
         catch (err) {
             throw new Error(err);
