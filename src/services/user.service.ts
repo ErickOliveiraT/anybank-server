@@ -1,7 +1,7 @@
 import { hash } from 'argon2';
 import { Injectable } from '@nestjs/common';
 import { genUser } from 'src/seeders/user.seeder';
-import { UserCreateDTO } from 'src/models/user.model';
+import { UserCreateDTO } from 'src/dtos/user_create.dto';
 import { UserRepository } from 'src/repositories/user.repository';
 
 @Injectable()

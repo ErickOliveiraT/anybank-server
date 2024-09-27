@@ -1,10 +1,13 @@
-import { User, UserCreateDTO } from "../models/user.model";
+import { UserCreateDTO } from "../dtos/user_create.dto";
+import { User } from "../models/user.model";
 import prisma from '../database/connection';
+import { Injectable } from "@nestjs/common";
 
 interface UserRepo {
     create(data: UserCreateDTO): Promise<User>;
 }
 
+@Injectable()
 export class UserRepository implements UserRepo {
 
     async create(data: UserCreateDTO): Promise<User> {
@@ -19,8 +22,10 @@ export class UserRepository implements UserRepo {
         }
     }
 
-    private normalizeUser(user: UserCreateDTO): User {
+    private normalizeUser(user: any): User {
         return {
+            id: user.id,
+            id_public: user.id_public,
             name: user.name,
             nickname: user.nickname,
             cpf: user.cpf,

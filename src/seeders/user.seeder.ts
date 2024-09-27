@@ -1,13 +1,15 @@
-import { UserCreateDTO } from "src/models/user.model";
+import { UserCreateDTO } from "src/dtos/user_create.dto";
 import { faker } from "@faker-js/faker";
 
 export function genUser(): UserCreateDTO {
     const name = faker.person.fullName();
+    const ddd = faker.string.numeric({ length: 2 });
+    const phone_number = faker.string.numeric({ length: 8 });
     const user: UserCreateDTO = {
         name,
         nickname: name.split(' ')[0],
         cpf: faker.string.numeric({ length: 11 }),
-        phone: faker.phone.number(),
+        phone: `+55${ddd}${phone_number}`,
         phone_whatsapp: true,
         email: faker.internet.email().toLowerCase(),
         birthdate: faker.date.birthdate().toISOString().substring(0, 10),

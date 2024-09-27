@@ -1,5 +1,5 @@
 import {Controller, Post, Body} from "@nestjs/common";
-import { UserCreateDTO } from "src/models/user.model";
+import { UserCreateDTO } from "src/dtos/user_create.dto";
 import { UserService } from "src/services/user.service";
 
 @Controller('users')
@@ -7,19 +7,14 @@ export class UserController {
     constructor (private readonly userService: UserService) {}
     
     @Post()
-    createUser(@Body() body: any) {
-        const user_data = body as UserCreateDTO;
-
-        const user = this.userService.createUser(user_data);
-
+    async createUser(@Body() body: UserCreateDTO) {
+        const user = await this.userService.createUser(body);
         return user;
     }
 
     @Post('seed')
-    generateUser() {
-        return this.userService.generateUser();
+    async generateUser() {
+        const generated_user = await this.userService.generateUser();
+        return generated_user;
     }
-
-
-
 }
