@@ -11,10 +11,10 @@ datasource db {
 }
 
 model User {
-  id_public                String   @unique @default(uuid())
-  id                       Int      @id @default(autoincrement())
-  created_at               DateTime @default(now())
-  updated_at               DateTime @updatedAt
+  id_public                String    @unique @default(uuid())
+  id                       Int       @id @default(autoincrement())
+  created_at               DateTime  @default(now())
+  updated_at               DateTime  @updatedAt
   name                     String
   nickname                 String
   cpf                      String
@@ -42,4 +42,21 @@ model User {
   address_country          String
   address_postal_code      String
   monthly_income           Float
+  Account                  Account[]
+}
+
+model Account {
+  id           Int      @id @default(autoincrement())
+  id_public    String   @unique @default(uuid())
+  type         String
+  user_id      Int
+  agency       String
+  number       String   @unique
+  credit_limit Float
+  credit_rate  Float
+  balance      Float
+  status       String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  holder       User     @relation(fields: [user_id], references: [id])
 }

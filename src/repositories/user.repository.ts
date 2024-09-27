@@ -1,10 +1,11 @@
 import { UserCreateDTO } from "../dtos/user_create.dto";
-import { User } from "../models/user.model";
+import { User } from "../entities/user.entity";
 import prisma from '../database/connection';
 import { Injectable } from "@nestjs/common";
 
 interface UserRepo {
     create(data: UserCreateDTO): Promise<User>;
+    list(): Promise<User[]>;
     clear(): Promise<void>;
 }
 
@@ -17,6 +18,16 @@ export class UserRepository implements UserRepo {
                 data: data
             });
             return this.normalizeUser({ ...user, password: '' } as UserCreateDTO);
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async list(): Promise<User[]> {
+        try {
+            const users = await prisma.user.findMany();
+            return users.map(user => this.normalizeUser(user));
         }
         catch (err) {
             throw new Error(err);
