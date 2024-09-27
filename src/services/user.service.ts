@@ -13,8 +13,16 @@ export class UserService {
         return await this.userRepository.create(data);
     }
 
-    async generateUser() {
-        const user = genUser();
-        return await this.userRepository.create(user);
+    async generateUser(quantity?: number) {
+        if (!quantity) quantity = 1;
+        const user_promises = [];
+        for (let i = 0; i < quantity; i++) {
+            user_promises.push(this.createUser(genUser()));
+        }
+        return await Promise.all(user_promises);
+    }
+
+    async clearUsers() {
+        return await this.userRepository.clear();
     }
 }

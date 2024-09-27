@@ -30,7 +30,7 @@ export function genUser(): UserCreateDTO {
         address_country: faker.location.country(),
         address_postal_code: faker.location.zipCode(),
         monthly_income: Number(faker.number.float({ min: 1000, max: 25000 }).toFixed(2)),
-        password: "admin"
+        password: "123456"
     }
 
     return user;

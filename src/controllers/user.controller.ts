@@ -17,4 +17,12 @@ export class UserController {
         const generated_user = await this.userService.generateUser();
         return generated_user;
     }
+
+    @Post('seed-many')
+    async generateManyUsers(@Body() body: { quantity: number, clear: boolean }) {
+        if (body.clear) {
+            await this.userService.clearUsers();
+        }
+        return this.userService.generateUser(body.quantity || 5);
+    }
 }

@@ -5,6 +5,7 @@ import { Injectable } from "@nestjs/common";
 
 interface UserRepo {
     create(data: UserCreateDTO): Promise<User>;
+    clear(): Promise<void>;
 }
 
 @Injectable()
@@ -16,6 +17,15 @@ export class UserRepository implements UserRepo {
                 data: data
             });
             return this.normalizeUser({ ...user, password: '' } as UserCreateDTO);
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async clear(): Promise<void> {
+        try {
+            await prisma.user.deleteMany({});
         }
         catch (err) {
             throw new Error(err);
