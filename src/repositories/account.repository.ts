@@ -5,6 +5,7 @@ import prisma from '../database/connection';
 
 interface AccountRepo {
     create(data: AccountCreateDTO): Promise<Account>;
+    findByNumber(number: string): Promise<Account|null>;
 }
 
 export class AccountRepository implements AccountRepo {
@@ -13,6 +14,21 @@ export class AccountRepository implements AccountRepo {
             const account = await prisma.account.create({
                 data: data as any
             });
+            return this.normalizeAccount(account);
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async findByNumber(number: string): Promise<Account|null> {
+        try {
+            const account = await prisma.account.findFirst({
+                where: {
+                    number: number
+                }
+            });
+            if (!account) return null;
             return this.normalizeAccount(account);
         }
         catch (err) {

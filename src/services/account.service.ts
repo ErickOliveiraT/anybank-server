@@ -14,6 +14,7 @@ export class AccountService {
     ) { }
 
     async createAccount(data: AccountOpenDTO) {
+        const number = await this.genAccountNumber();
         const account = {
             ...data,
             balance: 0,
@@ -21,7 +22,7 @@ export class AccountService {
             credit_rate: 0,
             status: "active",
             agency: "001",
-            number: this.genAccountNumber()
+            number
         } as AccountCreateDTO;
         
         return await this.accountRepository.create(account);
@@ -36,10 +37,17 @@ export class AccountService {
         return await Promise.all(account_promises);
     }
 
-    private genAccountNumber() {
-        const account_pre = faker.string.numeric(5);
-        const account_suf = faker.string.numeric(1);
-        const account_number = `${account_pre}-${account_suf}`;
+    private async genAccountNumber() {
+        let colliding = true;
+        let account_number = "";
+        while (colliding) {
+            const account_pre = faker.string.numeric(5);
+            const account_suf = faker.string.numeric(1);
+            account_number = `${account_pre}-${account_suf}`;
+            const acc_qry = await this.accountRepository.findByNumber(account_number);
+            if (!acc_qry) colliding = false;
+        }
+
         return account_number;
     }
 }
