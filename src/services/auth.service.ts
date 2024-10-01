@@ -4,6 +4,7 @@ import { LoginDTO } from "src/dtos/login.dto";
 import { verify } from "argon2";
 import { User, UserWithCredentials } from "src/entities/user.entity";
 import { AccountRepository } from "src/repositories/account.repository";
+import { Account } from "src/entities/account.entity";
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
@@ -40,9 +41,20 @@ export class AuthService {
             message: ["Login successful"],
             statusCode: 200,
             user: this.hidePassword(user),
-            accounts,
+            accounts: this.hideAccountInfo(accounts),
             token
         }
+    }
+
+    private hideAccountInfo(accounts: Account[]) {
+        for (const account of accounts) {
+            //delete account.balance;
+            delete account.updated_at;
+            delete account.user_id;
+            delete account.credit_limit;
+            //delete account.credit_rate;
+        }
+        return accounts;
     }
 
     private hidePassword(user: UserWithCredentials): User {
