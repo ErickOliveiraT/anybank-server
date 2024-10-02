@@ -7,9 +7,26 @@ interface AccountRepo {
     create(data: AccountCreateDTO): Promise<Account>;
     findByNumber(number: string): Promise<Account|null>;
     findByUser(user_id: number): Promise<Account[]>;
+    findById(id: number): Promise<Account|null>;
+    update(id: number, account: Account): Promise<Account>;
 }
 
 export class AccountRepository implements AccountRepo {
+    async findById(id: number): Promise<Account | null> {
+        try {
+            const account = await prisma.account.findFirst({
+                where: {
+                    id: id
+                }
+            });
+            if (!account) return null;
+            return this.normalizeAccount(account);
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
     async create(data: AccountCreateDTO): Promise<Account> {
         try {
             const account = await prisma.account.create({
@@ -45,6 +62,21 @@ export class AccountRepository implements AccountRepo {
                 }
             });
             return accounts.map(account => this.normalizeAccount(account));
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async update(id: number, account: Account): Promise<Account> {
+        try {
+            const updatedAccount = await prisma.account.update({
+                where: {
+                    id: id
+                },
+                data: account as any
+            });
+            return this.normalizeAccount(updatedAccount);
         }
         catch (err) {
             throw new Error(err);

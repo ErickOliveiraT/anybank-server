@@ -7,10 +7,13 @@ import { AccountRepository } from './repositories/account.repository';
 import { AccountController } from './controllers/account.controller';
 import { AuthService } from './services/auth.service';
 import { AuthController } from './controllers/auth.controller';
+import { DepositController } from './controllers/deposit.controller';
+import { DepositService } from './services/deposit.service';
+import { TransactionRepository } from './repositories/transaction.repository';
 
 @Module({
   imports: [],
-  controllers: [UserController, AccountController, AuthController],
-  providers: [UserService, UserRepository, AccountService, AccountRepository, AuthService],
+  controllers: [UserController, AccountController, AuthController, DepositController],
+  providers: [UserService, UserRepository, AccountService, AccountRepository, AuthService, DepositService, TransactionRepository],
 })
 export class AppModule {}

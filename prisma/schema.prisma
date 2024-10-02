@@ -60,3 +60,13 @@ model Account {
   updated_at   DateTime @updatedAt
   holder       User     @relation(fields: [user_id], references: [id])
 }
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  id_public   String   @unique @default(uuid())
+  type        String
+  account_id  Int
+  amount      Float
+  created_at  DateTime @default(now())
+  description String
+}
