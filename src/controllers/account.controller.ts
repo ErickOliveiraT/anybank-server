@@ -19,9 +19,4 @@ export class AccountController {
         return await this.accountService.generateAccounts();
     }
 
-    
-
-
-
-
 }
