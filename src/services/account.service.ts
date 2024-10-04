@@ -4,13 +4,15 @@ import { AccountRepository } from "../repositories/account.repository";
 import { UserRepository } from "src/repositories/user.repository";
 import { AccountCreateDTO } from "src/dtos/account_create.dto";
 import { AccountOpenDTO } from "src/dtos/account_open.dto";
+import { DepositService } from "src/services/deposit.service";
 import { faker } from "@faker-js/faker";
 
 @Injectable()
 export class AccountService {
     constructor(
         private readonly accountRepository: AccountRepository,
-        private readonly userRepository: UserRepository
+        private readonly userRepository: UserRepository,
+        private readonly depositService: DepositService,
     ) { }
 
     async createAccount(data: AccountOpenDTO) {
@@ -34,7 +36,21 @@ export class AccountService {
         users.forEach(user => {
             account_promises.push(this.accountRepository.create(genAccount(user.id)));
         });
-        return await Promise.all(account_promises);
+        const accounts = await Promise.all(account_promises);
+        const depositPromises = [];
+        for (const account of accounts) {
+            depositPromises.push(
+                this.depositService.depositToAccount(
+                    account.id,
+                    Number(faker.number.float({min: 0, max: 10000}).toFixed(2))
+                )
+            );
+        }
+        const deposits = await Promise.all(depositPromises);
+        deposits.forEach(deposit => {
+            accounts.find(acc => acc.id === deposit.account_id).balance = deposit.amount;
+        });
+        return accounts;
     }
 
     private async genAccountNumber() {
