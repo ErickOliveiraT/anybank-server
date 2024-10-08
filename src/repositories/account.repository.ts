@@ -83,6 +83,21 @@ export class AccountRepository implements AccountRepo {
         }
     }
 
+    async getByPublicId(id: string) {
+        try {
+            const account = await prisma.account.findFirst({
+                where: {
+                    id_public: id
+                }
+            });
+            if (!account) return null;
+            return this.normalizeAccount(account);
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
     private normalizeAccount(account: any): Account {
         return {
             created_at: account.created_at,

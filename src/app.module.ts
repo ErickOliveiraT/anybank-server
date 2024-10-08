@@ -12,10 +12,29 @@ import { DepositService } from './services/deposit.service';
 import { TransactionRepository } from './repositories/transaction.repository';
 import { TransferController } from './controllers/tranfer.controller';
 import { TransferService } from './services/tranfer.service';
+import { StatementController } from './controllers/statement.controller';
+import { StatementService } from './services/statement.service';
 
 @Module({
   imports: [],
-  controllers: [UserController, AccountController, AuthController, DepositController, TransferController],
-  providers: [UserService, UserRepository, AccountService, AccountRepository, AuthService, DepositService, TransactionRepository, TransferService],
+  controllers: [
+    UserController,
+    AccountController,
+    AuthController,
+    DepositController,
+    TransferController,
+    StatementController
+  ],
+  providers: [
+    UserService,
+    UserRepository,
+    AccountService,
+    AccountRepository,
+    AuthService,
+    DepositService,
+    TransactionRepository,
+    TransferService,
+    StatementService,
+  ],
 })
 export class AppModule {}

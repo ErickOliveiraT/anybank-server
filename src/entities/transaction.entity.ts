@@ -7,3 +7,11 @@ export interface Transaction {
     type: 'credit' | 'debit';
     description: string;
 }
+
+export interface StatementTransaction {
+    id_public: string;
+    amount: number;
+    created_at: Date;
+    type: 'credit' | 'debit';
+    description: string;
+}
