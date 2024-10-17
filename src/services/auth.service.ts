@@ -48,11 +48,11 @@ export class AuthService {
 
     private hideAccountInfo(accounts: Account[]) {
         for (const account of accounts) {
-            //delete account.balance;
+            delete account.balance;
             delete account.updated_at;
             delete account.user_id;
             delete account.credit_limit;
-            //delete account.credit_rate;
+            delete account.credit_rate;
         }
         return accounts;
     }
