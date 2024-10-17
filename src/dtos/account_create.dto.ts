@@ -7,4 +7,5 @@ export class AccountCreateDTO {
     credit_rate:  number;
     balance: number;
     status: string;
+    password: string;
 }

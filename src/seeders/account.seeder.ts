@@ -13,6 +13,7 @@ export function genAccount(user_id: number): AccountCreateDTO {
         credit_limit: faker.number.int({min: 0, max: 10000}),
         credit_rate: Number(faker.number.float({min: 0.05, max: 0.1}).toFixed(4)),
         balance: 0,
-        status: "active"
+        status: "active",
+        password: "123456"
     }
 }

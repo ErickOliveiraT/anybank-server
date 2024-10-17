@@ -1,7 +1,8 @@
 import { 
     IsNotEmpty,
     IsIn,
-    IsNumber
+    IsNumber,
+    IsNumberString
 } from 'class-validator';
 
 export class AccountOpenDTO {
@@ -11,4 +12,8 @@ export class AccountOpenDTO {
     @IsNumber()
     @IsNotEmpty()
     user_id: number;
+
+    @IsNumberString()
+    @IsNotEmpty()
+    password: string;
 }
