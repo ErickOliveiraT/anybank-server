@@ -50,6 +50,20 @@ export class UserRepository implements UserRepo {
         }
     }
 
+    async findById(id: number): Promise<User> {
+        try {
+            const user = await prisma.user.findFirst({
+                where: {
+                    id: id
+                }
+            });
+            return this.normalizeUser(user);
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
     async clear(): Promise<void> {
         try {
             await prisma.user.deleteMany({});

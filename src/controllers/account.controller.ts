@@ -15,7 +15,7 @@ export class AccountController {
         if (account_creation_res.opened && account_creation_res.account) {
             return res.status(201).send(account_creation_res.account);
         }
-        return res.status(account_creation_res.status_code || 500).send(account_creation_res);
+        return res.status(account_creation_res.statusCode || 500).send(account_creation_res);
     }
 
     @Post('seed')

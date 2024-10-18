@@ -12,8 +12,8 @@ interface OpenAccountResponse {
     opened: boolean;
     account?: any;
     error?: any;
-    status_code?: number;
-    message?: string;
+    statusCode?: number;
+    message?: string[];
 }
 
 @Injectable()
@@ -30,8 +30,8 @@ export class AccountService {
             return {
                 opened: false,
                 error: "Exists account for user",
-                message: "This user already has an account",
-                status_code: 400
+                message: ["This user already has an account"],
+                statusCode: 400
             }
         }
 

@@ -15,7 +15,7 @@ export class StatementService {
         start_date: string,
         end_date: string
     ) {
-        const account = await this.accountRepository.getByPublicId(account_id);
+        const account = await this.accountRepository.findByPublicId(account_id);
         if (!account) return {
             statusCode: 404,
             error: 'Not Found',

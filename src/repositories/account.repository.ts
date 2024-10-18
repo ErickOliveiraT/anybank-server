@@ -83,7 +83,7 @@ export class AccountRepository implements AccountRepo {
         }
     }
 
-    async getByPublicId(id: string) {
+    async findByPublicId(id: string) {
         try {
             const account = await prisma.account.findFirst({
                 where: {
@@ -92,6 +92,21 @@ export class AccountRepository implements AccountRepo {
             });
             if (!account) return null;
             return this.normalizeAccount(account);
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async findFullAccountByPublicId(id: string) {
+        try {
+            const account = await prisma.account.findFirst({
+                where: {
+                    id_public: id
+                }
+            });
+            if (!account) return null;
+            return account;
         }
         catch (err) {
             throw new Error(err);

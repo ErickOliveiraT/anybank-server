@@ -42,6 +42,25 @@ export class TransactionRepository implements TransactionRepo {
         }
     }
 
+    async getLastTransactions(account_id: number, limit: number): Promise<StatementTransaction[]> {
+        try {
+            const transactions = await prisma.transaction.findMany({
+                where: {
+                    account_id: account_id
+                },
+                orderBy: {
+                    created_at: 'desc'
+                },
+                take: limit
+            });
+            return transactions
+                .map(transaction => this.normalizeStatementTransaction(transaction as Transaction));
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
     private normalizeStatementTransaction(transaction: Transaction): StatementTransaction {
         return {
             id_public: transaction.id_public,
