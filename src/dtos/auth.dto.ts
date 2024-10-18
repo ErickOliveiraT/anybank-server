@@ -15,3 +15,8 @@ export class AccountLoginDTO {
     @IsNotEmpty()
     password: string;
 }
+
+export class TokenValidationDTO {
+    @IsNotEmpty()
+    token: string;
+}

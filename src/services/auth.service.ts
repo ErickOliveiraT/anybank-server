@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { UserRepository } from "src/repositories/user.repository";
-import { AccountLoginDTO, UserLoginDTO } from "src/dtos/login.dto";
+import { AccountLoginDTO, UserLoginDTO } from "src/dtos/auth.dto";
 import { verify } from "argon2";
 import { User, UserWithCredentials } from "src/entities/user.entity";
 import { AccountRepository } from "src/repositories/account.repository";
@@ -14,7 +14,7 @@ export class AuthService {
         private readonly userRepository: UserRepository,
         private readonly accountRepository: AccountRepository,
         private readonly transactionRepository: TransactionRepository
-    ) {}
+    ) { }
 
     async userLogin(data: UserLoginDTO) {
         const user = await this.userRepository.findByCPF(data.cpf);
@@ -34,8 +34,8 @@ export class AuthService {
             }
         }
         const token = jwt.sign(
-            user, 
-            process.env.JWT_SECRET, 
+            user,
+            process.env.JWT_SECRET,
             { expiresIn: '168h' }
         );
         const accounts = await this.accountRepository.findByUser(user.id);
@@ -66,11 +66,11 @@ export class AuthService {
             }
         }
         const token = jwt.sign(
-            account, 
-            process.env.JWT_SECRET, 
+            account,
+            process.env.JWT_SECRET,
             { expiresIn: '168h' }
         );
-        
+
         const user = await this.userRepository.findById(account.user_id);
         const last_transactions = await this.transactionRepository.getLastTransactions(account.id, 5);
 
@@ -84,6 +84,27 @@ export class AuthService {
             user,
             last_transactions,
             token
+        }
+    }
+
+    async validateAccountToken(
+        token: string
+    ): Promise<{
+        valid: boolean,
+        statusCode: number,
+        decodedToken?: any,
+        message?: string[]
+    }> {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            return {valid: true, decodedToken: decoded, statusCode: 200};
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                return {valid: false, statusCode: 401, message: ["Expired token"]};
+            } else if (error.name === 'JsonWebTokenError') {
+                return {valid: false, statusCode: 401, message: ["Invalid token"]};
+            } 
+            else return {valid: false, statusCode: 500, message: ["Error while validating token"]};
         }
     }
 
