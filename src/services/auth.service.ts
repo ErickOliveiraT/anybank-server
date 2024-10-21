@@ -57,33 +57,41 @@ export class AuthService {
                 statusCode: 404
             }
         }
-        const valid = await verify(account.password, data.password);
-        if (!valid) {
+        const password_promises = [];
+        const possible_passwors = this.generatePossiblePasswords(data.password);
+        possible_passwors.forEach(pass => {
+            password_promises.push(this.verifyPasswordPromise(account.password, pass));
+        });
+        
+        try {
+            const valid = await Promise.any(password_promises);
+            const token = jwt.sign(
+                account,
+                process.env.JWT_SECRET,
+                { expiresIn: '168h' }
+            );
+    
+            const user = await this.userRepository.findById(account.user_id);
+            const last_transactions = await this.transactionRepository.getLastTransactions(account.id, 5);
+    
+            delete account.password;
+            return {
+                message: ["Login successful"],
+                statusCode: 200,
+                account: {
+                    ...account
+                },
+                user,
+                last_transactions,
+                token
+            }
+        }
+        catch (err) {    
             return {
                 message: ["Invalid password"],
                 error: "Unauthorized",
                 statusCode: 401
             }
-        }
-        const token = jwt.sign(
-            account,
-            process.env.JWT_SECRET,
-            { expiresIn: '168h' }
-        );
-
-        const user = await this.userRepository.findById(account.user_id);
-        const last_transactions = await this.transactionRepository.getLastTransactions(account.id, 5);
-
-        delete account.password;
-        return {
-            message: ["Login successful"],
-            statusCode: 200,
-            account: {
-                ...account
-            },
-            user,
-            last_transactions,
-            token
         }
     }
 
@@ -97,14 +105,14 @@ export class AuthService {
     }> {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            return {valid: true, decodedToken: decoded, statusCode: 200};
+            return { valid: true, decodedToken: decoded, statusCode: 200 };
         } catch (error) {
             if (error.name === 'TokenExpiredError') {
-                return {valid: false, statusCode: 401, message: ["Expired token"]};
+                return { valid: false, statusCode: 401, message: ["Expired token"] };
             } else if (error.name === 'JsonWebTokenError') {
-                return {valid: false, statusCode: 401, message: ["Invalid token"]};
-            } 
-            else return {valid: false, statusCode: 500, message: ["Error while validating token"]};
+                return { valid: false, statusCode: 401, message: ["Invalid token"] };
+            }
+            else return { valid: false, statusCode: 500, message: ["Error while validating token"] };
         }
     }
 
@@ -123,5 +131,35 @@ export class AuthService {
     private hidePassword(user: UserWithCredentials): User {
         delete user.password;
         return user as User;
+    }
+
+    private generatePossiblePasswords(input: string[]): string[] {
+        function getPossibleDigits(pair: string): string[] {
+            return pair.split('.');
+        }
+
+        function generateCombinations(current_index: number, current_password: string, all_passwords: string[]) {
+            if (current_index === input.length) {
+                all_passwords.push(current_password);
+                return;
+            }
+            const possibleDigits = getPossibleDigits(input[current_index]);
+            for (let digit of possibleDigits) {
+                generateCombinations(current_index + 1, current_password + digit, all_passwords);
+            }
+        }
+
+        const passwords: string[] = [];
+        generateCombinations(0, '', passwords);
+
+        return passwords;
+    }
+
+    private async verifyPasswordPromise(correct_hash: string, password: string) {
+        return new Promise(async (resolve, reject) => {
+            const valid = await verify(correct_hash, password);
+            if (valid) return resolve(true);
+            else return reject(false);
+        })
     }
 }
