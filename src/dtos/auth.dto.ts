@@ -1,4 +1,4 @@
-import { IsNotEmpty, ArrayMinSize, ArrayMaxSize } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class UserLoginDTO {
     @IsNotEmpty()
@@ -12,9 +12,8 @@ export class AccountLoginDTO {
     @IsNotEmpty()
     id_public: string;
 
-    @ArrayMinSize(6)
-    @ArrayMaxSize(6)
-    password: string[];
+    @IsNotEmpty()
+    password: string;
 }
 
 export class TokenValidationDTO {

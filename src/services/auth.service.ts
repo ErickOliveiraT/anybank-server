@@ -58,13 +58,24 @@ export class AuthService {
             }
         }
         const password_promises = [];
-        const possible_passwors = this.generatePossiblePasswords(data.password);
+        let passwords = [];
+        try {
+            passwords = JSON.parse(data.password);
+        }
+        catch (err) {
+            return {
+                statusCode: 400,
+                message: ["The provided password is not an array of strings"],
+                error: "Error while decoding passwords"
+            }
+        }
+        const possible_passwors = this.generatePossiblePasswords(passwords);
         possible_passwors.forEach(pass => {
             password_promises.push(this.verifyPasswordPromise(account.password, pass));
         });
         
         try {
-            const valid = await Promise.any(password_promises);
+            await Promise.any(password_promises);
             const token = jwt.sign(
                 account,
                 process.env.JWT_SECRET,
