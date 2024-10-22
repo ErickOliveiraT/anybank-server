@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from "@nestjs/common";
+import { Body, Controller, Post, Res, Get, Query } from "@nestjs/common";
 import { AccountService } from "src/services/account.service";
 import { AccountOpenDTO } from "src/dtos/account_open.dto";
 import { Response } from 'express';
@@ -15,12 +15,21 @@ export class AccountController {
         if (account_creation_res.opened && account_creation_res.account) {
             return res.status(201).send(account_creation_res.account);
         }
-        return res.status(account_creation_res.statusCode || 500).send(account_creation_res);
+        return res.status(account_creation_res.status_code || 500).send(account_creation_res);
     }
 
     @Post('seed')
     async generateAccount() {
         return await this.accountService.generateAccounts();
+    }
+
+    @Get('info')
+    async getAccountInfo(@Query('account_id') account_id: string, @Res() res: Response) {
+        const info = await this.accountService.getAccountInfo(account_id);
+        if (info.status_code && info.status_code === 200) {
+            return res.status(info.status_code).send(info);
+        }
+        else return res.status(info.status_code || 500).send(info);
     }
 
 }

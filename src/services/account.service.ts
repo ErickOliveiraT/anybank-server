@@ -7,13 +7,26 @@ import { AccountOpenDTO } from "src/dtos/account_open.dto";
 import { DepositService } from "src/services/deposit.service";
 import { faker } from "@faker-js/faker";
 import { hash } from 'argon2';
+import { TransactionRepository } from "src/repositories/transaction.repository";
 
-interface OpenAccountResponse {
+interface AccountDefaultResponse {
     opened: boolean;
     account?: any;
     error?: any;
-    statusCode?: number;
+    status_code?: number;
     message?: string[];
+}
+
+interface AccontInfoResponse {
+    status_code: number;
+    balance: number;
+    credit_limit: number;
+    last_transactions: {
+        created_at: Date,
+        amount: number;
+        type: "credit" | "debit",
+        description: string;
+    }[];
 }
 
 @Injectable()
@@ -21,17 +34,18 @@ export class AccountService {
     constructor(
         private readonly accountRepository: AccountRepository,
         private readonly userRepository: UserRepository,
+        private readonly transactionRepository: TransactionRepository,
         private readonly depositService: DepositService
     ) { }
 
-    async createAccount(data: AccountOpenDTO): Promise<OpenAccountResponse> {
+    async createAccount(data: AccountOpenDTO): Promise<AccountDefaultResponse> {
         const user_accounts = await this.accountRepository.findByUser(data.user_id);
         if (user_accounts.length > 0) {
             return {
                 opened: false,
                 error: "Exists account for user",
                 message: ["This user already has an account"],
-                statusCode: 400
+                status_code: 400
             }
         }
 
@@ -79,6 +93,31 @@ export class AccountService {
             accounts.find(acc => acc.account.id === deposit.account_id).balance = deposit.amount;
         });
         return accounts;
+    }
+
+    async getAccountInfo(id: string): Promise<AccontInfoResponse|AccountDefaultResponse> {
+        const account = await this.accountRepository.findByPublicId(id);
+        if (!account) {
+            return {
+                status_code: 404,
+                error: "Not found",
+                message: ["Account not found"]
+            } as AccountDefaultResponse;
+        }
+
+        const last_transactions = await this.transactionRepository.getLastTransactions(account.id, 4);
+
+        return {
+            status_code: 200,
+            balance: account.balance,
+            credit_limit: account.credit_limit,
+            last_transactions: last_transactions.map(t => {return {
+                amount: t.amount,
+                type: t.type,
+                created_at: t.created_at,
+                description: t.description,
+            }})
+        } as AccontInfoResponse;
     }
 
     private async genAccountNumber() {
