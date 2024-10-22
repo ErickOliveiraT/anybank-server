@@ -36,7 +36,7 @@ export class AuthService {
         const token = jwt.sign(
             user,
             process.env.JWT_SECRET,
-            { expiresIn: '168h' }
+            { expiresIn: '7d' }
         );
         const accounts = await this.accountRepository.findByUser(user.id);
         return {
@@ -79,7 +79,7 @@ export class AuthService {
             const token = jwt.sign(
                 account,
                 process.env.JWT_SECRET,
-                { expiresIn: '168h' }
+                { expiresIn: 300 }
             );
     
             const user = await this.userRepository.findById(account.user_id);
