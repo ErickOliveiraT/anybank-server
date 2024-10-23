@@ -1,5 +1,5 @@
 
-import { AccountCreateDTO } from "src/dtos/account_create.dto";
+import { AccountCreateDTO } from "src/dtos/account.dto";
 import { Account } from "src/entities/account.entity";
 import prisma from '../database/connection';
 
@@ -107,6 +107,22 @@ export class AccountRepository implements AccountRepo {
             });
             if (!account) return null;
             return account;
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async findByAgencyAndNumber(agency: string, number: string) {
+        try {
+            const account = await prisma.account.findFirst({
+                where: {
+                    agency: agency,
+                    number: `${number.substring(0, 5)}-${number.substring(5)}`
+                }
+            });
+            if (!account) return null;
+            return this.normalizeAccount(account);
         }
         catch (err) {
             throw new Error(err);

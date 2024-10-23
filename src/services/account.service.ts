@@ -2,12 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { genAccount } from "src/seeders/account.seeder";
 import { AccountRepository } from "../repositories/account.repository";
 import { UserRepository } from "src/repositories/user.repository";
-import { AccountCreateDTO } from "src/dtos/account_create.dto";
-import { AccountOpenDTO } from "src/dtos/account_open.dto";
+import { AccountCreateDTO } from "src/dtos/account.dto";
+import { AccountOpenDTO } from "src/dtos/account.dto";
 import { DepositService } from "src/services/deposit.service";
 import { faker } from "@faker-js/faker";
 import { hash } from 'argon2';
 import { TransactionRepository } from "src/repositories/transaction.repository";
+import { Account } from "src/entities/account.entity";
+import { User } from "src/entities/user.entity";
 
 interface AccountDefaultResponse {
     opened: boolean;
@@ -83,7 +85,7 @@ export class AccountService {
                 depositPromises.push(
                     this.depositService.depositToAccount(
                         account.account.id,
-                        Number(faker.number.float({min: 0, max: 10000}).toFixed(2))
+                        Number(faker.number.float({ min: 0, max: 10000 }).toFixed(2))
                     )
                 );
             }
@@ -95,7 +97,7 @@ export class AccountService {
         return accounts;
     }
 
-    async getAccountInfo(id: string): Promise<AccontInfoResponse|AccountDefaultResponse> {
+    async getAccountInfo(id: string): Promise<AccontInfoResponse | AccountDefaultResponse> {
         const account = await this.accountRepository.findByPublicId(id);
         if (!account) {
             return {
@@ -111,13 +113,25 @@ export class AccountService {
             status_code: 200,
             balance: account.balance,
             credit_limit: account.credit_limit,
-            last_transactions: last_transactions.map(t => {return {
-                amount: t.amount,
-                type: t.type,
-                created_at: t.created_at,
-                description: t.description,
-            }})
+            last_transactions: last_transactions.map(t => {
+                return {
+                    amount: t.amount,
+                    type: t.type,
+                    created_at: t.created_at,
+                    description: t.description,
+                }
+            })
         } as AccontInfoResponse;
+    }
+
+    async getByAgencyAndNumber(agency: string, number: string): Promise<{ account: Account | null, user: User | null }> {
+        const account = await this.accountRepository.findByAgencyAndNumber(agency, number);
+        if (!account) return { account: null, user: null };
+        const user = await this.userRepository.findById(account.user_id);
+        return {
+            account,
+            user
+        };
     }
 
     private async genAccountNumber() {

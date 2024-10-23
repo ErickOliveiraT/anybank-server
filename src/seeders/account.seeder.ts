@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { AccountCreateDTO } from "src/dtos/account_create.dto";
+import { AccountCreateDTO } from "src/dtos/account.dto";
 
 export function genAccount(user_id: number): AccountCreateDTO {
     const account_pre = faker.string.numeric(5);

@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Res, Get, Query } from "@nestjs/common";
 import { AccountService } from "src/services/account.service";
-import { AccountOpenDTO } from "src/dtos/account_open.dto";
+import { AccountOpenDTO } from "src/dtos/account.dto";
 import { Response } from 'express';
 
 @Controller('accounts')
@@ -32,4 +32,23 @@ export class AccountController {
         else return res.status(info.status_code || 500).send(info);
     }
 
+    @Get('find')
+    async findAccount(@Query('agency') agency: string, @Query('number') number: string, @Res() res: Response) {
+        const info = await this.accountService.getByAgencyAndNumber(agency, number);
+        if (!info.account) {
+            return res.status(404).send({
+                message: ["Account not found"],
+                statusCode: 404,
+                error: "Not found"
+            });
+        }
+        if (!info.user) {
+            return res.status(404).send({
+                message: ["User not found"],
+                statusCode: 404,
+                error: "Not found"
+            });
+        }
+        return res.status(200).send(info);
+    }
 }
